@@ -19,7 +19,7 @@ class InvalidValueError extends Error {
 /**
  * Receives a line of the CSV file and parse it into an object.
  * @param line The CSV file line.
- * @returns {{from: String, to: String, value: number}} The parsed object with the information for the line.
+ * @returns {{from: Array, to: Array, value: number}} The parsed object with the information for the line.
  */
 function separateLine(line) {
 	if (!line) {
@@ -40,6 +40,7 @@ function separateLine(line) {
 				if (!quotation) {
 					quotation = line[lineIdx];
 				} else if (quotation === line[lineIdx]) {
+					// It is just a flag that it has already used a quotation mark so it's not allowed to use a new one
 					quotation = '!';
 				} else {
 					throw new UnexpectedFormatError(`Unexpected character: "${line[lineIdx]}"`);
@@ -65,7 +66,7 @@ function separateLine(line) {
 	let value = Number(names[2]);
 
 	if (isNaN(value)) {
-		throw new InvalidValueError(`Unexpected format, value is not a number: '${names[2].trim()}'`);
+		throw new InvalidValueError(`Value is not a number: '${names[2].trim()}'`);
 	}
 
 	return {
@@ -86,15 +87,21 @@ function saveDebit(debits, row) {
 	if (!debits) {
 		debits = {};
 	}
+
+	// It inverts the debit in case it is a negative one
 	if (row.value < 0) {
 		let temp = row.from;
 		row.from = row.to;
 		row.to = temp;
 		row.value *= -1;
 	}
+
+	// It is retrieving the entry or creating it case it does not exist yet
 	let from = debits[row.from] || {};
 	let to = from[row.to] || 0;
 	to += row.value;
+
+	// It is updating the debits structure
 	from[row.to] = to;
 	debits[row.from] = from;
 

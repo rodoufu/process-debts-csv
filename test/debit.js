@@ -51,6 +51,7 @@ describe('separateLine', () => {
 			}, debit.InvalidValueError, "5.f");
 		});
 	});
+
 	describe('Valid', () => {
 		it('Simple', () => {
 			let line = debit.separateLine('a,b,5');
