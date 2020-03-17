@@ -14,7 +14,7 @@ const rl = readline.createInterface({
  * It is using a dictionary but it is possible to use a persistent database for very long files.
  * @type {{}}
  */
-let theDebits = {};
+let theDebits = {'lines': 0};
 
 /**
  * The code does not use a CSV parser for the case when very big file is used and the parser cannot deal with it.
@@ -22,10 +22,11 @@ let theDebits = {};
  */
 rl.on('line', function (line) {
 	try {
+		theDebits.lines++;
 		let row = debit.separateLine(line);
 		theDebits = debit.saveDebit(theDebits, row);
 	} catch (e) {
-		console.error(`There was a problem parsing the line ${line} - ${e}`);
+		console.error(`There was a problem parsing the line #${theDebits.lines}: "${line}" - ${e}`);
 	}
 });
 
