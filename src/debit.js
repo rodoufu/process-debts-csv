@@ -77,6 +77,7 @@ function separateLine(line) {
 
 /**
  * Includes a debit to the dictionary or adds a value to an existing one.
+ * For negative values the direction of the debit is inverted.
  * @param debits The debits dictionary.
  * @param row The row containing the debit information.
  * @returns {*} The updated debits dictionary.
@@ -84,6 +85,12 @@ function separateLine(line) {
 function saveDebit(debits, row) {
 	if (!debits) {
 		debits = {};
+	}
+	if (row.value < 0) {
+		let temp = row.from;
+		row.from = row.to;
+		row.to = temp;
+		row.value *= -1;
 	}
 	let from = debits[row.from] || {};
 	let to = from[row.to] || 0;
