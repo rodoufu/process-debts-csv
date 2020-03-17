@@ -21,6 +21,11 @@ let theDebits = {};
  * @type {number}
  */
 let linesCount = 0;
+/**
+ * Indicates if the application faced an error.
+ * @type {number}
+ */
+let hasError = 0;
 
 /**
  * The code does not use a CSV parser for the case when very big file is used and the parser cannot deal with it.
@@ -32,6 +37,7 @@ rl.on('line', function (line) {
 		let row = debit.separateLine(line);
 		theDebits = debit.saveDebit(theDebits, row);
 	} catch (e) {
+		hasError = 1;
 		console.error(`There was a problem parsing the line #${linesCount}: "${line}" - ${e}`);
 	}
 });
@@ -47,5 +53,5 @@ rl.on('close', function() {
 			});
 		});
 	}
-	process.exit(0);
+	process.exit(hasError);
 });
