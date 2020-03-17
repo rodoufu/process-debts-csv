@@ -31,7 +31,7 @@ function separateLine(line, trimNames = true) {
 		throw new UnexpectedFormatError("Empty line");
 	}
 
-	let names = [[], [], []];
+	let names = ['', '', ''];
 	let namesIdx = 0;
 	let lineIdx = 0;
 	let quotation = null;
