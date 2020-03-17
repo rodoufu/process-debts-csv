@@ -19,9 +19,10 @@ class InvalidValueError extends Error {
 /**
  * Receives a line of the CSV file and parse it into an object.
  * @param line The CSV file line.
+ * @param trimNames It indicates if should trim the names.
  * @returns {{from: Array, to: Array, value: number}} The parsed object with the information for the line.
  */
-function separateLine(line) {
+function separateLine(line, trimNames = true) {
 	if (!line) {
 		throw new UnexpectedFormatError("Null line");
 	}
@@ -36,8 +37,12 @@ function separateLine(line) {
 	let quotation = null;
 	for (; namesIdx < 3 && lineIdx < line.length; ++namesIdx) {
 		for (; lineIdx < line.length; ++lineIdx) {
-			if (line[lineIdx] === '"' || line[lineIdx] === "'") {
+			// In order to allow simple quotes as quotation mark just add  `|| line[lineIdx] === "'"` in the condition
+			if (line[lineIdx] === '"') {
 				if (!quotation) {
+					if (names[namesIdx].length && !names[namesIdx].match(/\s+/) && names[namesIdx].length > 0) {
+						throw new UnexpectedFormatError(`Unexpected quotation mark: "${line[lineIdx]}"`);
+					}
 					quotation = line[lineIdx];
 				} else if (quotation === line[lineIdx]) {
 					// It is just a flag that it has already used a quotation mark so it's not allowed to use a new one
@@ -55,6 +60,9 @@ function separateLine(line) {
 				}
 			} else {
 				names[namesIdx] += line[lineIdx];
+				if ('!' === quotation && !line[lineIdx].match(/\s/)) {
+					throw new UnexpectedFormatError(`Unexpected column value: "${names[namesIdx]}"`);
+				}
 			}
 		}
 	}
@@ -70,8 +78,8 @@ function separateLine(line) {
 	}
 
 	return {
-		'from': names[0],
-		'to': names[1],
+		'from': trimNames ? names[0].trim() : names[0],
+		'to': trimNames ? names[1].trim() : names[1],
 		'value': value,
 	};
 }
