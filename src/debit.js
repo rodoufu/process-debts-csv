@@ -24,7 +24,7 @@ function separateLine(line) {
 	let lineIdx = 0;
 	let quotation = null;
 	for (; namesIdx < 3 && lineIdx < line.length; ++namesIdx) {
-		for (;lineIdx < line.length; ++lineIdx) {
+		for (; lineIdx < line.length; ++lineIdx) {
 			if (line[lineIdx] === '"' || line[lineIdx] === "'") {
 				if (!quotation) {
 					quotation = line[lineIdx];
@@ -64,8 +64,22 @@ function separateLine(line) {
 	};
 }
 
+function saveDebit(debits, row) {
+	if (!debits) {
+		debits = {};
+	}
+	let from = debits[row.from] || {};
+	let to = from[row.to] || 0;
+	to += row.value;
+	from[row.to] = to;
+	debits[row.from] = from;
+
+	return debits;
+}
+
 module.exports = {
 	UnexpectedFormatError,
 	InvalidValueError,
 	separateLine,
+	saveDebit,
 };
