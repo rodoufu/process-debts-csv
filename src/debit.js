@@ -4,64 +4,68 @@ class UnexpectedFormatError extends Error {
 	}
 }
 
-class InvalidStringError extends Error {
-	constructor(message) {
-		super(message);
-	}
-}
-
 class InvalidValueError extends Error {
 	constructor(message) {
 		super(message);
 	}
 }
 
-function separateLine(line, separator = ',') {
+function separateLine(line) {
 	if (!line) {
-		throw new UnexpectedFormatError("null line");
+		throw new UnexpectedFormatError("Null line");
 	}
 	line = line.trim();
 	if (line.length === 0) {
 		throw new UnexpectedFormatError("Empty line");
 	}
 
-	const linePat = separator === ',' ?
-		new RegExp(/^(.+),(.+),(.+)$/) :
-		new RegExp(/^(.+);(.+);(.+)$/);
-	let found = line.match(linePat);
-	if (!found || found.index !== 0 || found.length !== 4) {
-		throw new UnexpectedFormatError('Unexpected format');
-	}
-
-	const sep = ['"', "'"];
-	const namePat = [new RegExp(/^\s*"(\S*)"\s*$/), new RegExp(/^\s*'(\S*)'\s*$/)];
-	for (let j = 1; j < 4; ++j) {
-		for (let i = 0; i < namePat.length; ++i) {
-			let theFound = found[j].match(namePat[i]);
-			if (theFound) {
-				found[j] = theFound[1];
-			} else if (found[j].indexOf(sep[i]) !== -1) {
-				throw new InvalidStringError(`Unexpected format, missing ${sep[i]}`);
+	let names = [[], [], []];
+	let namesIdx = 0;
+	let lineIdx = 0;
+	let quotation = null;
+	for (; namesIdx < 3 && lineIdx < line.length; ++namesIdx) {
+		for (;lineIdx < line.length; ++lineIdx) {
+			if (line[lineIdx] === '"' || line[lineIdx] === "'") {
+				if (!quotation) {
+					quotation = line[lineIdx];
+				} else if (quotation === line[lineIdx]) {
+					quotation = '!';
+				} else {
+					throw new UnexpectedFormatError(`Unexpected character: "${line[lineIdx]}"`);
+				}
+			} else if (line[lineIdx] === ',') {
+				if (quotation && quotation !== '!') {
+					throw new UnexpectedFormatError(`Unexpected column value: "${names[namesIdx]}"`);
+				}
+				quotation = null;
+				if (++namesIdx === 3) {
+					throw new UnexpectedFormatError(`Too many columns: "${line}"`);
+				}
+			} else {
+				names[namesIdx] += line[lineIdx];
 			}
 		}
 	}
 
-	let value = Number(found[3]);
+	if (namesIdx < 3) {
+		throw new UnexpectedFormatError("Missing values");
+	}
+
+	let value = Number(names[2]);
 
 	if (isNaN(value)) {
-		throw new InvalidValueError(`Unexpected format, value is not a number: '${found[3].trim()}'`);
+		throw new InvalidValueError(`Unexpected format, value is not a number: '${names[2].trim()}'`);
 	}
 
 	return {
-		'from': found[1],
-		'to': found[2],
+		'from': names[0],
+		'to': names[1],
 		'value': value,
 	};
 }
 
 module.exports = {
 	UnexpectedFormatError,
-	InvalidStringError,
 	InvalidValueError,
 	separateLine,
 };
