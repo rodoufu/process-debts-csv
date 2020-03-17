@@ -1,15 +1,26 @@
+/**
+ * There is a problem with the line validation.
+ */
 class UnexpectedFormatError extends Error {
 	constructor(message) {
 		super(message);
 	}
 }
 
+/**
+ * The value for the debit is not a valid number.
+ */
 class InvalidValueError extends Error {
 	constructor(message) {
 		super(message);
 	}
 }
 
+/**
+ * Receives a line of the CSV file and parse it into an object.
+ * @param line The CSV file line.
+ * @returns {{from: String, to: String, value: number}} The parsed object with the information for the line.
+ */
 function separateLine(line) {
 	if (!line) {
 		throw new UnexpectedFormatError("Null line");
@@ -64,6 +75,12 @@ function separateLine(line) {
 	};
 }
 
+/**
+ * Includes a debit to the dictionary or adds a value to an existing one.
+ * @param debits The debits dictionary.
+ * @param row The row containing the debit information.
+ * @returns {*} The updated debits dictionary.
+ */
 function saveDebit(debits, row) {
 	if (!debits) {
 		debits = {};
