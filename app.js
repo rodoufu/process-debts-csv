@@ -1,3 +1,5 @@
+'use strict';
+
 const readline = require('readline');
 const debit = require("./src/debit.js");
 
@@ -45,7 +47,7 @@ rl.on('line', function (line) {
 /**
  * When the stream is closed the answer is printed in the console using 2 digits for precision.
  */
-rl.on('close', function() {
+rl.on('close', function () {
 	if (theDebits) {
 		Object.entries(theDebits).forEach(([key, value]) => {
 			Object.entries(value).forEach(([keyInner, valueInner]) => {

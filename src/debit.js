@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * There is a problem with the line validation.
  */
