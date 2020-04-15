@@ -80,9 +80,9 @@ function separateLine(line, trimNames = true) {
 	}
 
 	return {
-		'from': trimNames ? names[0].trim() : names[0],
-		'to': trimNames ? names[1].trim() : names[1],
-		'value': value,
+		from: trimNames ? names[0].trim() : names[0],
+		to: trimNames ? names[1].trim() : names[1],
+		value: value,
 	};
 }
 
