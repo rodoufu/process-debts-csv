@@ -118,9 +118,40 @@ function saveDebit(debits, row) {
 	return debits;
 }
 
+function removeTrivial(debits, epsilon) {
+	if (!epsilon) {
+		epsilon = 1e-5;
+	}
+	// Removing A -> B and B -> A
+	Object.entries(debits).forEach(([key, value]) => {
+		Object.entries(value).forEach(([keyInner, valueInner]) => {
+			if (debits[keyInner] && debits[keyInner][key]) {
+				if (Math.abs(valueInner - debits[keyInner][key]) < epsilon) {
+					delete(debits[keyInner][key]);
+					delete(debits[key][keyInner]);
+				} else if (valueInner > debits[keyInner][key]) {
+					debits[key][keyInner] = valueInner - debits[keyInner][key];
+					delete(debits[keyInner][key]);
+				} else {
+					debits[keyInner][key] = debits[keyInner][key] - valueInner;
+					delete(debits[key][keyInner]);
+				}
+			}
+		});
+	});
+	Object.entries(debits).forEach(([key, value]) => {
+		if (!Object.entries(value).length) {
+			delete(debits[key]);
+		}
+	});
+	return debits;
+}
+
 module.exports = {
 	UnexpectedFormatError,
 	InvalidValueError,
 	separateLine,
 	saveDebit,
+	removeTrivial,
 };
+
