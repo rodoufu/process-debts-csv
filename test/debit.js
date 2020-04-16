@@ -217,5 +217,21 @@ describe('separateLine and saveDebit', () => {
 			assert.equal(debits['a1']['b'], 6);
 			assert.equal(debits['a']['b1'], 3);
 		});
+
+		it('Remove trivial', () => {
+			let debits = debit.saveDebit(null, debit.separateLine('a,b,1'));
+			assert.equal(debits['a']['b'], 1);
+
+			debits = debit.saveDebit(debits, debit.separateLine('b,a,2'));
+			assert.equal(debits['a']['b'], 1);
+			assert.equal(debits['b']['a'], 2);
+
+			debits = debit.removeTrivial(debits);
+			assert.equal(debits['b']['a'], 1);
+
+			debits = debit.saveDebit(debits, debit.separateLine('a,b,1'));
+			debits = debit.removeTrivial(debits);
+			assert.equal(Object.entries(debits).length, 0);
+		});
 	});
 });
