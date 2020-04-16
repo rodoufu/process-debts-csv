@@ -49,6 +49,7 @@ rl.on('line', function (line) {
  */
 rl.on('close', function () {
 	if (theDebits) {
+		theDebits = rem
 		Object.entries(theDebits).forEach(([key, value]) => {
 			Object.entries(value).forEach(([keyInner, valueInner]) => {
 				console.log(`${key},${keyInner},${valueInner.toFixed(2)}`);
